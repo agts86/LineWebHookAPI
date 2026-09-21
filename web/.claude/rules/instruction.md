@@ -7,7 +7,7 @@
 
 ### 前提アーキテクチャ
 
-- バックエンド API: `server/src/host`（Hono / TypeScript）
+- バックエンド API: `server/src/host`（NestJS / TypeScript）
 - フロントエンド: `web/`（Next.js）
 - デプロイ構成: 1コンテナで API と静的フロントを同居
 - Next.js は `output: 'export'` による静的出力を利用し、実行時は CSR（SPA）として動作

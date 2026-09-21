@@ -30,7 +30,7 @@ services:
       sh -c "cd /app &&
       pnpm install --store-dir /tmp/pnpm-store &&
       pnpm --filter @api/tables exec prisma generate &&
-      pnpm --filter @api/host exec tsx watch --conditions=development src/main.ts"
+      pnpm --filter @api/host exec node --watch --conditions=development --import @swc-node/register/esm-register src/main.ts"
     environment:
       - TZ=Asia/Tokyo
       - NODE_ENV=development

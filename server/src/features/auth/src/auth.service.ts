@@ -1,5 +1,7 @@
 import { timingSafeEqual, randomBytes } from "node:crypto";
+import { Inject, Injectable } from "@nestjs/common";
 import { createAccessToken, hashToken, type JwtConfig } from "@api/shared";
+import { AUTH_REPOSITORY, AUTH_SERVICE_CONFIG } from "./auth.constants.js";
 import type { AuthRepository } from "./auth.repository.js";
 
 export class UnauthorizedError extends Error {}
@@ -29,10 +31,11 @@ function timingSafeEqualString(expected: string, actual: string): boolean {
 }
 
 /** 既存.NET側 AuthService と同じ振る舞いを持つ認証サービス */
+@Injectable()
 export class AuthService {
 	constructor(
-		private readonly repo: AuthRepository,
-		private readonly config: AuthServiceConfig,
+		@Inject(AUTH_REPOSITORY) private readonly repo: AuthRepository,
+		@Inject(AUTH_SERVICE_CONFIG) private readonly config: AuthServiceConfig,
 	) {}
 
 	async login(userName: string, password: string): Promise<LoginResult> {

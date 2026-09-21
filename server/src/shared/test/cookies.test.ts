@@ -21,7 +21,7 @@ describe("buildAuthCookieOptions", () => {
 		expect(options).toMatchObject({
 			httpOnly: true,
 			secure: true,
-			sameSite: "Strict",
+			sameSite: "strict",
 			path: "/",
 		});
 		expect(options.expires).toEqual(expiresAt);
@@ -34,6 +34,6 @@ describe("buildAuthCookieOptions", () => {
 
 		expect(options.secure).toBe(false);
 		expect(options.httpOnly).toBe(true);
-		expect(options.sameSite).toBe("Strict");
+		expect(options.sameSite).toBe("strict");
 	});
 });

@@ -1,9 +1,15 @@
 import { randomUUID } from "node:crypto";
+import { Inject, Injectable } from "@nestjs/common";
 import type { webhook, messagingApi } from "@line/bot-sdk";
 import { formatAsJstIsoString } from "@api/shared";
 import type { SpotSearchClient, SpotFeature, SpotLocation } from "./search-client.js";
 import type { LineReplyClient, CarouselColumn } from "../line-reply-client.js";
 import type { GourmetLogEntry, SpotEventResult, PersistedMeta } from "./types.js";
+import {
+	SKIP_LINE_API_CALL,
+	SPOT_LINE_REPLY_CLIENT,
+	SPOT_SEARCH_CLIENT,
+} from "../webhook.constants.js";
 
 export const NOT_FOUND_TEXT = "ごめんなさい。。見つかりませんでした。。";
 const NOT_FOUND_ALT_TEXT = "検索結果";
@@ -107,11 +113,12 @@ function buildMessages(features: SpotFeature[]): unknown[] {
 }
 
 /** 既存.NET側 LineReplyService と同じ振る舞い（メッセージ解析→スポット検索→カルーセル/NotFound返信） */
+@Injectable()
 export class SpotReplyService {
 	constructor(
-		private readonly spotSearchClient: SpotSearchClient,
-		private readonly lineReplyClient: LineReplyClient,
-		private readonly skipLineApiCall: boolean,
+		@Inject(SPOT_SEARCH_CLIENT) private readonly spotSearchClient: SpotSearchClient,
+		@Inject(SPOT_LINE_REPLY_CLIENT) private readonly lineReplyClient: LineReplyClient,
+		@Inject(SKIP_LINE_API_CALL) private readonly skipLineApiCall: boolean,
 	) {}
 
 	processEvent = async (

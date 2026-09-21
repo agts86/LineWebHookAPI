@@ -1,8 +1,10 @@
-import { z } from "@hono/zod-openapi";
+import { z } from "zod";
+import { withOpenApi } from "@api/shared";
 
 export const GenreCodeQuerySchema = z.object({
 	genreCode: z.string().max(7).optional(),
 });
+export type GenreCodeQuery = z.infer<typeof GenreCodeQuerySchema>;
 
 const PersistedMetaSchema = z.union([
 	z.object({
@@ -26,4 +28,6 @@ const SpotEventResultSchema = z.object({
 	isReplySucceeded: z.boolean(),
 });
 
-export const SpotReplyResponseSchema = z.array(SpotEventResultSchema).openapi("SpotReplyResponse");
+export const SpotReplyResponseSchema = withOpenApi(z.array(SpotEventResultSchema), {
+	name: "SpotReplyResponse",
+});

@@ -19,12 +19,18 @@
 		"lint": "eslint src test --ext .ts --max-warnings 0"
 	},
 	"dependencies": {
-		"hono": "^4.12.30",
-		"jose": "^5.9.0"
+		"@nestjs/common": "^12.0.4",
+		"@standard-schema/spec": "^1.1.0",
+		"cookie": "^2.0.1",
+		"jose": "^5.9.0",
+		"reflect-metadata": "^0.2.2",
+		"rxjs": "^7.8.2"
 	},
 	"devDependencies": {
+		"@swc/core": "^1.16.2",
 		"@types/node": "^22.10.0",
 		"typescript": "^6.0.0",
+		"unplugin-swc": "^1.6.0",
 		"vitest": "^3.0.0"
 	}
 }

@@ -22,8 +22,13 @@
             "name": "server: host dev",
             "type": "node",
             "request": "launch",
-            "runtimeExecutable": "${workspaceFolder}/server/src/host/node_modules/.bin/tsx",
-            "runtimeArgs": ["watch", "--conditions=development", "--inspect"],
+            "runtimeExecutable": "node",
+            "runtimeArgs": [
+                "--watch",
+                "--conditions=development",
+                "--import",
+                "@swc-node/register/esm-register"
+            ],
             "program": "${workspaceFolder}/server/src/host/src/main.ts",
             "cwd": "${workspaceFolder}/server/src/host",
             "envFile": "${workspaceFolder}/server/src/host/.env",

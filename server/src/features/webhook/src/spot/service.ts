@@ -1,5 +1,7 @@
+import { Inject, Injectable } from "@nestjs/common";
 import type { webhook } from "@line/bot-sdk";
-import type { SpotReplyService } from "./reply.service.js";
+import { WEBHOOK_REPOSITORY } from "../webhook.constants.js";
+import { SpotReplyService } from "./reply.service.js";
 import type { WebhookRepository } from "./repository.js";
 import type { SpotEventResult, PersistedMeta } from "./types.js";
 
@@ -8,10 +10,11 @@ function isLocationMeta(meta: PersistedMeta): meta is Extract<PersistedMeta, { l
 }
 
 /** 既存.NET側 WebhookService と同じ振る舞い（イベント処理・永続化） */
+@Injectable()
 export class SpotService {
 	constructor(
 		private readonly spotReplyService: SpotReplyService,
-		private readonly repo: WebhookRepository,
+		@Inject(WEBHOOK_REPOSITORY) private readonly repo: WebhookRepository,
 	) {}
 
 	/** /spot 用: 同期的に処理し、DB保存した上でreply/meta/isReplySucceededの一覧を返す */

@@ -8,8 +8,7 @@
 		"typecheck": "tsc --noEmit -p tsconfig.json"
 	},
 	"dependencies": {
-		"@api/host": "workspace:*",
-		"hono": "^4.6.0"
+		"@api/host": "workspace:*"
 	},
 	"devDependencies": {
 		"typescript": "^6.0.0"

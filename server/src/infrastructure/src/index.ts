@@ -6,3 +6,8 @@ export { PrismaWebhookRepository } from "./webhook.repository.impl.js";
 export { YolpClientImpl } from "./yolp-client.impl.js";
 export { ParkingClientImpl } from "./parking-client.impl.js";
 export { LineReplyClientImpl } from "./line-reply-client.impl.js";
+export {
+	InfrastructureModule,
+	PRISMA_CLIENT,
+	type InfrastructureModuleOptions,
+} from "./infrastructure.module.js";

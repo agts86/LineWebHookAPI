@@ -8,7 +8,7 @@ graph TD
     Admin["管理者ユーザー（Browser）"]
     LineAPI["LINE Messaging API"]
     Ui["UI（Next.js export）<br/>wwwroot で静的配信"]
-    Api["server<br/>Hono (Node.js) / Prisma"]
+    Api["server<br/>NestJS (Node.js) / Prisma"]
     Yahoo["Yahoo!ローカルサーチ API (YOLP)"]
     DB["PostgreSQL"]
 
@@ -28,7 +28,7 @@ graph TD
 ```mermaid
 graph LR
     subgraph Host["src/host"]
-      App["createApp() (app.ts)<br/>Hono配線・DI組み立て"]
+      App["createApp() (create-app.ts)<br/>AppModule・DI組み立て"]
     end
 
     subgraph Features["src/features/*"]
@@ -119,7 +119,7 @@ graph LR
 ```mermaid
 graph LR
     GitPush["git push（develop）"]
-    Vercel["Vercel<br/>Node.js Functions（api/index.ts + hono/vercel）"]
+    Vercel["Vercel<br/>Node.js Functions（api/index.ts + NestJS）"]
     GH["GitHub Actions<br/>ContainerDeploy"]
     GHCR["GHCR"]
     Azure["Azure Web App<br/>line-webhook-api"]
@@ -130,6 +130,6 @@ graph LR
 ```
 
 注記:
-- **メイン経路は Vercel**。`api/index.ts` が `hono/vercel` の `handle()` で `server/src/host` の Hono アプリをラップし、`vercel.json` の `functions`/`rewrites` で `/api/*` と `/health` を単一 Function へルーティングする。`web/out`（静的出力）は `outputDirectory` としてそのまま配信する。
-- `Dockerfile` は multi-stage build で `web` と `server` をビルドし、`web/out` を server コンテナの `wwwroot` に、`server` 一式（node_modules込み）を同梱します。実行は `tsx` で `src/host/src/main.ts` を直接起動します。この経路（GHCR → Azure Web App）は Vercel と並行稼働するセカンダリ経路です。
+- **メイン経路は Vercel**。`api/index.ts` が `server/src/host` の `createNodeRequestListener()`（NestJS アプリを初回リクエストで初期化し、Node標準の `(req, res)` 形式で処理する関数）をdefault exportし、`vercel.json` の `functions`/`rewrites` で `/api/*` と `/health` を単一 Function へルーティングする。NestJS（Express）が生のリクエストボディを読めるよう、`vercel.json` の `build.env` で `NODEJS_HELPERS=0`（Vercel の Node.js ヘルパー無効化）を指定している。`web/out`（静的出力）は `outputDirectory` としてそのまま配信する。
+- `Dockerfile` は multi-stage build で `web` と `server` をビルドし、`web/out` を server コンテナの `wwwroot` に、`server` 一式（node_modules込み）を同梱します。実行はビルド済みの `src/host/dist/main.js` を `node` で起動します（NestJS の DI が使うデコレータメタデータは `tsc` の出力に含まれるため）。この経路（GHCR → Azure Web App）は Vercel と並行稼働するセカンダリ経路です。
 - 認証は `Access Token + Refresh Token` を利用し、`RefreshToken` は DB で管理します。

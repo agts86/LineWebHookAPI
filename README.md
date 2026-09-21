@@ -11,7 +11,7 @@ LineChatBotのフック先に使うAPI<br/>
 
 ■ 言語・FW<br>
 
--   TypeScript：Hono（API, `server/`）
+-   TypeScript：NestJS（API, `server/`）
 -   TypeScript：Next.js（UI）
 
 ■ DB
@@ -29,7 +29,7 @@ LineChatBotのフック先に使うAPI<br/>
 
 ## API構成（`server/`、pnpm workspace）
 
-- `server/src/host` : Hono app組み立て / DI配線 / 起動設定
+- `server/src/host` : NestJS の AppModule 組み立て / DI配線 / 起動設定
 - `server/src/features/*` : Feature単位（auth / managed / webhook）の Router / Service / Dto
 - `server/src/tables` : Prisma スキーマ
 - `server/src/shared` : 共通 Validation / Utility / Interface
@@ -108,7 +108,7 @@ UI は有効期限の5分前に `/api/v1/auth/refresh` を呼び、失敗時は 
 
 ## デプロイ
 
-メイン経路は Vercel（Node.js Functions）。ルート直下の `api/index.ts`（`@api/vercel`パッケージ）が `hono/vercel` の `handle()` で `server/src/host` の Hono アプリをラップし、`vercel.json` の `functions`/`rewrites` で `/api/*` と `/health` を単一 Function へルーティングする。`web/out`（静的出力）は `outputDirectory` としてそのまま配信する。
+メイン経路は Vercel（Node.js Functions）。ルート直下の `api/index.ts`（`@api/vercel`パッケージ）が `server/src/host` の `createNodeRequestListener()`（NestJS アプリを初回リクエストで初期化し、Node標準の `(req, res)` 形式で処理する関数）をdefault exportし、`vercel.json` の `functions`/`rewrites` で `/api/*` と `/health` を単一 Function へルーティングする。NestJS（Express）が生のリクエストボディを読めるよう、`vercel.json` の `build.env` で `NODEJS_HELPERS=0`（Vercel の Node.js ヘルパー無効化）を指定している。`web/out`（静的出力）は `outputDirectory` としてそのまま配信する。
 
 GHCR → Azure Web App 経路も別途稼働している。`Dockerfile` は multi-stage build で `web` をビルドし、生成物（`web/out`）を server コンテナの `wwwroot` に同梱する。  
 そのため、コンテナビルド時の context はリポジトリルート（`.`）を使用する。

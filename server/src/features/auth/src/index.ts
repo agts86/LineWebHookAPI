@@ -1,4 +1,11 @@
-export { createAuthRouter } from "./auth.routes.js";
+export { AuthModule } from "./auth.module.js";
+export { AuthController } from "./auth.controller.js";
+export {
+	AUTH_REPOSITORY,
+	AUTH_SERVICE_CONFIG,
+	AUTH_COOKIE_SECURE,
+	type AuthModuleOptions,
+} from "./auth.constants.js";
 export {
 	AuthService,
 	UnauthorizedError,

@@ -4,7 +4,7 @@ export const AUTH_REFRESH_COOKIE_NAME = "linewebhook_refresh";
 export interface AuthCookieOptions {
 	httpOnly: true;
 	secure: boolean;
-	sameSite: "Strict";
+	sameSite: "strict";
 	path: "/";
 	expires: Date;
 }
@@ -18,7 +18,7 @@ export function buildAuthCookieOptions(expiresAt: Date, secure = true): AuthCook
 	return {
 		httpOnly: true,
 		secure,
-		sameSite: "Strict",
+		sameSite: "strict",
 		path: "/",
 		expires: expiresAt,
 	};

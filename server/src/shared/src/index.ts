@@ -14,4 +14,16 @@ export {
 	type VerifiedAccessToken,
 } from "./jwt.js";
 export { formatAsJstIsoString } from "./datetime.js";
-export { createAuthGuard, type AuthGuardVariables } from "./auth-guard.js";
+export { Cookies, readCookie, type RequestWithCookieHeader } from "./request-cookies.js";
+export {
+	JWT_CONFIG,
+	JwtAuthGuard,
+	CurrentUser,
+	type AuthenticatedUser,
+	type AuthenticatedRequest,
+} from "./jwt-auth.guard.js";
+export {
+	withOpenApi,
+	listOpenApiSchemas,
+	type OpenApiSchemaMetadata,
+} from "./openapi-schema.js";

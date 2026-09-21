@@ -13,8 +13,8 @@
 	},
 	"scripts": {
 		"build": "tsc -p tsconfig.json",
-		"dev": "tsx watch --conditions=development --inspect --env-file=.env src/main.ts",
-		"start": "tsx src/main.ts",
+		"dev": "node --watch --conditions=development --inspect --env-file=.env --import @swc-node/register/esm-register src/main.ts",
+		"start": "node dist/main.js",
 		"test": "vitest run",
 		"test:coverage": "vitest run --coverage --coverage.reporter=text-summary --coverage.reporter=json-summary",
 		"lint": "eslint src test --ext .ts --max-warnings 0"
@@ -25,16 +25,24 @@
 		"@api/features-webhook": "workspace:*",
 		"@api/infrastructure": "workspace:*",
 		"@api/shared": "workspace:*",
-		"@hono/node-server": "^1.13.0",
-		"@hono/swagger-ui": "^0.5.0",
-		"@hono/zod-openapi": "^0.18.0",
-		"hono": "^4.12.30"
+		"@nestjs/common": "^12.0.4",
+		"@nestjs/core": "^12.0.4",
+		"@nestjs/platform-express": "^12.0.4",
+		"@nestjs/swagger": "^12.0.1",
+		"reflect-metadata": "^0.2.2",
+		"rxjs": "^7.8.2",
+		"zod": "^3.24.0",
+		"zod-to-json-schema": "^3.25.2"
 	},
 	"devDependencies": {
 		"@api/tables": "workspace:*",
+		"@swc-node/register": "^1.12.1",
+		"@swc/core": "^1.16.2",
 		"@types/node": "^22.10.0",
-		"tsx": "^4.19.0",
+		"@types/supertest": "^7.2.1",
+		"supertest": "^7.2.2",
 		"typescript": "^6.0.0",
+		"unplugin-swc": "^1.6.0",
 		"vitest": "^3.0.0"
 	}
 }

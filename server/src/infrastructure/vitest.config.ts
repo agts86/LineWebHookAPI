@@ -1,3 +1,4 @@
+import swc from "unplugin-swc";
 import { defineConfig } from "vitest/config";
 
 /**
@@ -7,6 +8,7 @@ import { defineConfig } from "vitest/config";
  * タイミング競合でflakyになる。ファイル単位を直列実行にして競合を防ぐ。
  */
 export default defineConfig({
+	plugins: [swc.vite({ module: { type: "es6" } })],
 	test: {
 		fileParallelism: false,
 		globalSetup: ["../tables/test-support/vitest-global-setup.ts"],

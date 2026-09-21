@@ -21,6 +21,12 @@
 		"enabled": true,
 		"lineWidth": 100
 	},
+	"javascript": {
+		"parser": {
+			// NestJSのコンストラクタ引数デコレータ(@Inject等)を解析できるようにする
+			"unsafeParameterDecoratorsEnabled": true
+		}
+	},
 	"linter": {
 		"enabled": false
 	},

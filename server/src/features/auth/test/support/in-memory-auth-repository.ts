@@ -4,7 +4,7 @@ import type {
 	StoredRefreshToken,
 } from "../../src/auth.repository.js";
 
-/** テスト用のインメモリAuthRepository実装。auth.service.test.tsとauth.routes.test.tsで共有する */
+/** テスト用のインメモリAuthRepository実装。auth.service.test.tsとauth.controller.test.tsで共有する */
 export class InMemoryAuthRepository implements AuthRepository {
 	private tokens = new Map<string, StoredRefreshToken>();
 	private idSeq = 0;

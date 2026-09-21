@@ -20,7 +20,7 @@ RUN apt-get update \
 RUN corepack enable && corepack prepare pnpm@10.26.0 --activate
 COPY server/ ./
 RUN pnpm install --frozen-lockfile
-# pnpm -r build は全パッケージのtscを通す型チェックの安全弁（実行時はtsxで生ソースを直接動かすためdist自体は使わない）。
+# pnpm -r build で各パッケージのdistを生成する（NestのDIが使うデコレータメタデータはtscの出力に含まれるため、実行時はdistを使う）。
 # tables の build スクリプト内で prisma generate も実行されるが、明示のため個別にも実行しておく。
 RUN pnpm -r build
 RUN pnpm --filter @api/tables exec prisma generate
@@ -37,4 +37,4 @@ EXPOSE 80
 COPY --from=server-build /app/server /app/server
 COPY --from=web-build /src/web/out ./wwwroot
 
-ENTRYPOINT ["node_modules/.bin/tsx", "src/main.ts"]
+ENTRYPOINT ["node", "dist/main.js"]

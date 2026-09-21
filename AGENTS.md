@@ -1,7 +1,7 @@
 # Monorepo Agent Guide
 
 このファイルはリポジトリ全体の共通ルールを定義する。  
-API は `server/`（TypeScript / Hono / Prisma、pnpm workspace）。
+API は `server/`（TypeScript / NestJS / Prisma、pnpm workspace）。
 
 ## 1. 適用範囲と優先順位
 

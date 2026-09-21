@@ -1,7 +1,13 @@
+import { Inject, Injectable } from "@nestjs/common";
 import type { webhook, messagingApi } from "@line/bot-sdk";
 import type { ParkingClient, ParkingLocation, ParkingSpot } from "./client.js";
 import type { LineReplyClient, CarouselColumn } from "../line-reply-client.js";
 import type { ParkingEventResult } from "./types.js";
+import {
+	PARKING_CLIENT,
+	PARKING_LINE_REPLY_CLIENT,
+	SKIP_LINE_API_CALL,
+} from "../webhook.constants.js";
 
 export const NOT_FOUND_TEXT = "ごめんなさい。。見つかりませんでした。。";
 const NOT_FOUND_ALT_TEXT = "検索結果";
@@ -93,11 +99,12 @@ function buildMessages(spots: ParkingSpot[]): unknown[] {
 }
 
 /** jmpsa.or.jp（全国バイク駐車場・駐輪場案内）を使ったバイク駐車場検索版のReplyService相当 */
+@Injectable()
 export class ParkingReplyService {
 	constructor(
-		private readonly parkingClient: ParkingClient,
-		private readonly lineReplyClient: LineReplyClient,
-		private readonly skipLineApiCall: boolean,
+		@Inject(PARKING_CLIENT) private readonly parkingClient: ParkingClient,
+		@Inject(PARKING_LINE_REPLY_CLIENT) private readonly lineReplyClient: LineReplyClient,
+		@Inject(SKIP_LINE_API_CALL) private readonly skipLineApiCall: boolean,
 	) {}
 
 	processEvent = async (event: webhook.Event): Promise<ParkingEventResult | null> => {

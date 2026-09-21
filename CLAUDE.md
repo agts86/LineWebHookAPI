@@ -7,30 +7,30 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## プロジェクト概要
 
-LINE Messaging API の Webhook を受ける Hono API と、管理画面の Next.js SPA のモノレポ。
+LINE Messaging API の Webhook を受ける NestJS API と、管理画面の Next.js SPA のモノレポ。
 LINE ユーザーが位置情報やメッセージを送信すると、Yahoo!ローカルサーチ API で周辺のグルメ情報を検索して返信する。
-API はもともと C#/ASP.NET Core で実装されていたが、TypeScript(Hono + Prisma) へ完全移行済み（旧 `API/` は削除済み）。
+API はもともと C#/ASP.NET Core で実装されていたが、TypeScript(NestJS + Prisma) へ完全移行済み（旧 `API/` は削除済み）。
 
 ### 技術スタック
 
-- **API**: TypeScript / Hono / Prisma / PostgreSQL（pnpm workspace モノレポ、`server/`）
+- **API**: TypeScript / NestJS 12（Express、ESM） / Prisma / PostgreSQL（pnpm workspace モノレポ、`server/`）
 - **UI**: TypeScript / Next.js (`output: 'export'` で静的出力 → CSR SPA、`web/`)
-- **デプロイ**: **メイン経路は Vercel**（Node.js Functions。ルート直下の `api/index.ts`（`@api/vercel`パッケージ）が `hono/vercel` の `handle()` で `server/src/host` の Hono アプリをラップし、`vercel.json` の `functions`/`rewrites` で `/api/*` と `/health` を単一 Function へルーティングする。`web/out`（静的出力）は `outputDirectory` としてそのまま配信）。Docker multi-stage build によるコンテナイメージ（API + UI を単一コンテナで配信）を使う GHCR → Azure Web App 経路も別途稼働中
+- **デプロイ**: **メイン経路は Vercel**（Node.js Functions。ルート直下の `api/index.ts`（`@api/vercel`パッケージ）が `server/src/host` の `createNodeRequestListener()`（NestJS アプリを初回リクエストで初期化し、Node標準の `(req, res)` 形式で処理する関数）をdefault exportし、`vercel.json` の `functions`/`rewrites` で `/api/*` と `/health` を単一 Function へルーティングする。NestJS（Express）が生のリクエストボディを読めるよう、`vercel.json` の `build.env` で `NODEJS_HELPERS=0`（Vercel の Node.js ヘルパー無効化）を指定している。`web/out`（静的出力）は `outputDirectory` としてそのまま配信）。Docker multi-stage build によるコンテナイメージ（API + UI を単一コンテナで配信）を使う GHCR → Azure Web App 経路も別途稼働中
 - **外部連携**: LINE Messaging API, Yahoo!ローカルサーチ API (YOLP)
 
 ## アーキテクチャ
 
 ### API レイヤ構成（pnpm workspace）
 
-依存方向: `Controller(routes) → Service → Repository`（一方向のみ）
+依存方向: `Controller → Service → Repository`（一方向のみ）
 
 | パッケージ | 役割 | 参照先 |
 |---|---|---|
-| `server/src/host` | Hono app組み立て / DI配線 / 起動設定 | Features, Infrastructure |
-| `server/src/features/*` | Feature単位の Router / Service / DTO（auth, managed, webhook） | Tables, Shared, 同一Feature内 |
+| `server/src/host` | NestJS の `AppModule` 組み立て / DI配線 / 起動設定 | Features, Infrastructure |
+| `server/src/features/*` | Feature単位の Module / Controller / Service / DTO（auth, managed, webhook） | Tables, Shared, 同一Feature内 |
 | `server/src/tables` | Prisma スキーマ | Shared |
 | `server/src/shared` | 共通 Validation / Utility / Interface | なし（最内層） |
-| `server/src/infrastructure` | Repository 実装 / Prisma Client / 外部APIクライアント | Tables, Features, Shared |
+| `server/src/infrastructure` | Repository 実装 / Prisma Client / 外部APIクライアント / それらを注入トークンへ束ねる `InfrastructureModule` | Tables, Features, Shared |
 
 pnpmの非hoisted node_modulesとeslint-plugin-boundariesで、この参照方向を物理的・lintレベルの両方で強制している。
 

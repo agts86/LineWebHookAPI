@@ -12,6 +12,8 @@
 		"declaration": true,
 		"composite": true,
 		"isolatedModules": true,
+		"experimentalDecorators": true,
+		"emitDecoratorMetadata": true,
 		"noEmit": false
 	}
 }

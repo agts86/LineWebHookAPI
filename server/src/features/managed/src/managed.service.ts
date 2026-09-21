@@ -1,3 +1,5 @@
+import { Inject, Injectable } from "@nestjs/common";
+import { MANAGED_REPOSITORY } from "./managed.constants.js";
 import type {
 	ManagedRepository,
 	GourmetLocationLogRow,
@@ -9,8 +11,9 @@ import type {
 export type MessageType = "location" | "text";
 
 /** 既存.NET側 ManagedService と同じ振る舞い（フィルタ・集計なし、リポジトリへの単純委譲） */
+@Injectable()
 export class ManagedService {
-	constructor(private readonly repo: ManagedRepository) {}
+	constructor(@Inject(MANAGED_REPOSITORY) private readonly repo: ManagedRepository) {}
 
 	// オーバーロード: 呼び出し側がリテラルでmessageTypeを渡した場合に戻り値の型を絞り込めるようにする
 	// （.map()等をUnion型のまま呼ぶとTypeScriptの型推論が意図せず広がるため）
