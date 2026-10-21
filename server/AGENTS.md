@@ -14,7 +14,7 @@ Keep source in each package’s `src/` directory and tests in its `test/` direct
 
 ## Build, Test, and Development Commands
 
-Use pnpm 10.26.0 with Node.js 24.11.1, as defined in `package.json`.
+Use pnpm 10.26.0 with Node.js 24.22.1, as defined in `package.json`.
 
 - `pnpm dev`: runs the host package locally with `node --watch` + `@swc-node/register` (SWC emits the decorator metadata NestJS DI needs) and `src/host/.env`.
 - `pnpm build`: builds all workspace packages; `src/tables` also runs `prisma generate`.
