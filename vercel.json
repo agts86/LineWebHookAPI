@@ -1,7 +1,7 @@
 {
 	"framework": null,
 	"installCommand": "pnpm install",
-	"buildCommand": "pnpm -r build && cd web && pnpm install --frozen-lockfile --ignore-workspace && pnpm build",
+	"buildCommand": "pnpm turbo run build",
 	"outputDirectory": "web/out",
 	"build": { "env": { "NODEJS_HELPERS": "0" } },
 	"functions": { "api/index.ts": { "maxDuration": 10 } },

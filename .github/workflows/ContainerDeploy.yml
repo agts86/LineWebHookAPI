@@ -10,6 +10,8 @@ on:
     paths:
       - 'server/**'
       - 'web/**'
+      - 'pnpm-lock.yaml'
+      - 'pnpm-workspace.yaml'
       - 'Dockerfile'
       - '.github/workflows/ContainerDeploy.yml'
   workflow_dispatch:

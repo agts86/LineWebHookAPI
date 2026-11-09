@@ -1,13 +1,21 @@
 services:
+  install:
+    container_name: install
+    build:
+      context: ./server
+      dockerfile: Dockerfile.dev
+    working_dir: /app
+    command: pnpm install --store-dir /tmp/pnpm-store
+    volumes:
+      - .:/app
+
   web:
     container_name: web
     build:
       context: ./web
       dockerfile: dockerfile.dev
-    working_dir: /app
-    command: >
-      sh -c "pnpm install --store-dir /tmp/pnpm-store &&
-      pnpm exec next dev -p 3000 -H 0.0.0.0"
+    working_dir: /app/web
+    command: pnpm exec next dev -p 3000 -H 0.0.0.0
     environment:
       - TZ=Asia/Tokyo
       - NODE_ENV=development
@@ -15,20 +23,21 @@ services:
       - API_BASE_URL=http://localhost:3001
     network_mode: "host"
     volumes:
-      - ./web:/app
-      - web_node_modules:/app/node_modules
+      - .:/app
     depends_on:
-      - server
+      install:
+        condition: service_completed_successfully
+      server:
+        condition: service_started
 
   server:
     container_name: server
     build:
       context: ./server
       dockerfile: Dockerfile.dev
-    working_dir: /app/src/host
+    working_dir: /app/server/src/host
     command: >
       sh -c "cd /app &&
-      pnpm install --store-dir /tmp/pnpm-store &&
       pnpm --filter @api/tables exec prisma generate &&
       pnpm --filter @api/host exec node --watch --conditions=development --import @swc-node/register/esm-register src/main.ts"
     environment:
@@ -38,9 +47,12 @@ services:
       - ./server/src/host/.env
     network_mode: "host"
     volumes:
-      - ./server:/app
+      - .:/app
     depends_on:
-      - postgres
+      install:
+        condition: service_completed_successfully
+      postgres:
+        condition: service_started
 
   postgres:
     container_name: postgres
@@ -57,4 +69,3 @@ services:
 
 volumes:
   postgres_data:
-  web_node_modules:

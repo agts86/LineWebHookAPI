@@ -5,11 +5,19 @@ on:
     branches: [ "develop" ]
     paths:
       - 'server/**'
+      - 'package.json'
+      - 'pnpm-lock.yaml'
+      - 'pnpm-workspace.yaml'
+      - 'turbo.json'
       - '.github/workflows/ServerUnitTest.yml'
   pull_request:
     branches: [ "develop" ]
     paths:
       - 'server/**'
+      - 'package.json'
+      - 'pnpm-lock.yaml'
+      - 'pnpm-workspace.yaml'
+      - 'turbo.json'
       - '.github/workflows/ServerUnitTest.yml'
 
 jobs:
@@ -50,28 +58,23 @@ jobs:
       with:
         node-version: 24
         cache: pnpm
-        cache-dependency-path: server/pnpm-lock.yaml
+        cache-dependency-path: pnpm-lock.yaml
 
     - name: Install dependencies
-      working-directory: server
       run: pnpm install --frozen-lockfile
 
     - name: Sync DB schema
       # prisma migrateは使わない（EF Coreがスキーマの記録上の所有者のため）。
       # schema.prismaの内容をそのままCI用の使い捨てDBへ反映するだけのdb pushを使う。
-      working-directory: server
       run: pnpm --filter @api/tables exec prisma db push --skip-generate
 
     - name: Build
-      working-directory: server
-      run: pnpm -r build
+      run: pnpm turbo run build --filter="@api/*"
 
     - name: Lint
-      working-directory: server
-      run: pnpm -r lint
+      run: pnpm turbo run lint --filter="@api/*"
 
     - name: Test with coverage
-      working-directory: server
       # GitHub ActionsはCI=trueを自動設定するため、素のままだとvitestが
       # ANSIカラーコードを強制出力し、tee先のログ→job summaryが文字化けする。
       # NO_COLOR=1でそれを抑止する。
@@ -81,7 +84,7 @@ jobs:
       # ステップの失敗として伝播しない（teeの終了コードで上書きされる）ため明示する。
       run: |
         set -o pipefail
-        pnpm -r test:coverage | tee /tmp/test-coverage.log
+        pnpm turbo run test:coverage --filter="@api/*" | tee /tmp/test-coverage.log
 
     - name: Report Coverage - shared
       uses: davelosert/vitest-coverage-report-action@v2

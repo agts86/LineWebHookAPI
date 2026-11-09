@@ -43,20 +43,16 @@ jobs:
       with:
         node-version: 24
         cache: pnpm
-        cache-dependency-path: web/pnpm-lock.yaml
+        cache-dependency-path: pnpm-lock.yaml
 
     - name: Install dependencies
-      working-directory: web
-      run: pnpm install --frozen-lockfile --ignore-workspace
+      run: pnpm install --frozen-lockfile
 
     - name: Lint
-      working-directory: web
-      run: pnpm lint:check
+      run: pnpm turbo run lint:check --filter=line-webhook-ui
 
     - name: Typecheck
-      working-directory: web
-      run: pnpm typecheck
+      run: pnpm turbo run typecheck --filter=line-webhook-ui
 
     - name: Test
-      working-directory: web
-      run: pnpm test
+      run: pnpm turbo run test --filter=line-webhook-ui

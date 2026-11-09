@@ -2,7 +2,7 @@
 
 ## Project Structure & Module Organization
 
-This repository is a TypeScript / NestJS API organized as a pnpm workspace. Packages are declared in `pnpm-workspace.yaml` as `src/*` and `src/features/*`.
+This repository is a TypeScript / NestJS API organized as a pnpm workspace. Packages are declared in the repository-root `pnpm-workspace.yaml` (single workspace shared with `api/` and `web/`, single root `pnpm-lock.yaml`) as `server/src/*` and `server/src/features/*`. Tasks are orchestrated by Turborepo (`turbo.json` at the repository root).
 
 - `src/host`: application entry point and composition root (`src/main.ts`, `src/app.ts`).
 - `src/features/auth`, `src/features/webhook`, `src/features/managed`: feature modules with routes, DTOs, services, repositories, and tests.
@@ -17,9 +17,11 @@ Keep source in each package’s `src/` directory and tests in its `test/` direct
 Use pnpm 10.26.0 with Node.js 24.22.1, as defined in `package.json`.
 
 - `pnpm dev`: runs the host package locally with `node --watch` + `@swc-node/register` (SWC emits the decorator metadata NestJS DI needs) and `src/host/.env`.
-- `pnpm build`: builds all workspace packages; `src/tables` also runs `prisma generate`.
-- `pnpm test`: runs Vitest across all packages.
-- `pnpm lint`: runs ESLint across workspace packages.
+Run these from the repository root:
+
+- `pnpm build`: `turbo run build` for all workspace packages; `src/tables` also runs `prisma generate` (its build is uncached).
+- `pnpm test`: `turbo run test` across all packages. Add `--filter="@api/*"` (e.g. `pnpm turbo run test --filter="@api/*"`) to limit to server + api.
+- `pnpm lint`: `turbo run lint` across workspace packages.
 - `pnpm --filter @api/host test`: run a command for one package; replace the filter as needed.
 
 ## Coding Style & Naming Conventions

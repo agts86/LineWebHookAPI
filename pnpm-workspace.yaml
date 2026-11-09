@@ -1,4 +1,6 @@
 packages:
+  - 'server'
   - 'server/src/*'
   - 'server/src/features/*'
   - 'api'
+  - 'web'

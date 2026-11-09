@@ -51,8 +51,7 @@ server/
       test/
     infrastructure/           # ~ API/Infrastructure: featuresのrepositoryインターフェースをPrismaで実装し、InfrastructureModuleで注入トークンへ束ねる
       src/
-  pnpm-workspace.yaml
-  package.json              # ルート、workspace全体のスクリプト
+  package.json              # dev スクリプトのみ。server共通のdevDependencies（ESLint等）・workspace定義・lockfileはリポジトリルートに集約
 ```
 
 ## 3. パッケージ命名
@@ -113,7 +112,7 @@ server/
 
 ## 10. テスト
 
-- フレームワーク: Vitest（workspace root から `pnpm -r test` で全パッケージ横断実行）
+- フレームワーク: Vitest（リポジトリルートから `pnpm test`（`turbo run test`）で全パッケージ横断実行。server のみなら `pnpm turbo run test --filter="@api/*"`）
 - デコレータを含むパッケージの`vitest.config.ts`には`unplugin-swc`を必ず入れる（`plugins: [swc.vite({ module: { type: "es6" } })]`）。Vitest標準のesbuildは`emitDecoratorMetadata`を出力しないため、無いと型ベースDIがテスト時だけ解決できなくなる。同じ理由で開発時の実行も`tsx`ではなく`node --import @swc-node/register/esm-register`を使う（本番は`tsc`の出力`dist/main.js`を実行する）
 - ユニットテスト: `shared/`配下の純粋関数（JWT生成/検証、Cookie属性生成、ハッシュ化）はDBなしでテストする
 - 統合テスト: `features/*/test/*.controller.test.ts`は`@nestjs/testing`の`Test.createTestingModule` + `supertest`で、`infrastructure/test/*.impl.test.ts`は実際のPrisma Clientを通してテストする（モックしない）。featureのテストでは、注入トークンの実装を`@Global()`なテスト用モジュール（インメモリ実装）で与える。DBは`tables/test-support/`のvitest `globalSetup`が`localhost:5433`（開発用DBの5432とは別ポート）にPGlite（WASM版Postgres、`@electric-sql/pglite` + `@electric-sql/pglite-socket`）を自動起動するため、`docker-compose.yml`のPostgresを手動起動する必要はない（`.NET`版がEF CoreのSQLite in-memoryでDBレスにテストしていたのと同じ発想。ただしスキーマがPostgreSQL固有型（`@db.Uuid`等）に依存しているためSQLiteではなくPostgres互換のPGliteを使う）。ポートをあえて開発用DBと分けているのは、テストの`deleteMany()`等で開発用DBのデータを壊さないため（「空いていればPGlite、埋まっていれば既存DBを使う」というフォールバックはしない）。CI（`.github/workflows/ServerUniTest.yml`）は本番相当の実PostgreSQLを使い続ける。`tables`/`infrastructure`の`.env`のDATABASE_URLに`connection_limit=1&pgbouncer=true`が必須（PGliteは複数コネクションでのprepared statement名前空間分離に対応しないため）。`host/.env`は開発時のアプリ起動用のため5432のまま・上記パラメータなしでよい

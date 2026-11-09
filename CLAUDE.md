@@ -56,13 +56,27 @@ pnpm format        # biome format --write .（server/web 両方）
 pnpm format:check  # 差分があれば失敗（CI と同じ）
 ```
 
+### Workspace 全体（Turborepo）
+
+server / api / web は単一の pnpm workspace（ルートの `pnpm-workspace.yaml`、lockfile はルートの `pnpm-lock.yaml` 1本のみ）。
+タスクはルートの `turbo.json` に定義し、Turborepo が依存順の実行とキャッシュ（`.turbo/`）を行う。
+
+```bash
+pnpm install    # ルートで1回（server/web 両方の依存を入れる）
+pnpm build      # turbo run build（server 全パッケージ + api + web）
+pnpm lint       # turbo run lint
+pnpm typecheck  # turbo run typecheck
+pnpm test       # turbo run test
+```
+
+- PGlite（5433番固定）を使う tables / infrastructure / host のテストが並列で衝突しないよう、`test` は `^test` に依存させて依存順に直列化している
+- `@api/tables` の `build` は `prisma generate`（出力先が node_modules 内）を含むため、`server/src/tables/turbo.json` でキャッシュ無効にしている
+
 ### API（server）
 
 ```bash
-cd server
-pnpm -r build   # 全パッケージビルド（型チェック含む）
-pnpm -r lint    # ESLint（全パッケージ）
-pnpm -r test    # テスト全件（vitest）
+pnpm turbo run build --filter="@api/*"  # server + api のみビルド
+pnpm turbo run test --filter="@api/*"   # server + api のみテスト
 pnpm --filter @api/<package-name> test  # パッケージ個別（例: @api/features-webhook）
 
 # DBスキーマ同期（ローカル/CI用。migration履歴は持たずschema.prismaへ同期するだけ）
@@ -72,17 +86,16 @@ pnpm --filter @api/tables exec prisma db push
 ### UI（web）
 
 ```bash
-cd web
-pnpm lint       # ESLint
-pnpm build      # 静的出力（out/）
-pnpm test       # Vitest
+pnpm turbo run build --filter=line-webhook-ui  # 静的出力（web/out/）
+pnpm turbo run test --filter=line-webhook-ui   # Vitest
+cd web && pnpm lint                            # ESLint（パッケージ単体で直接実行も可）
 ```
 
 ### Docker（ローカル開発）
 
 ```bash
 docker compose build
-docker compose up -d    # postgres:5432, server:3001, web:3000
+docker compose up -d    # install（ルートで pnpm install して終了）→ postgres:5432, server:3001, web:3000
 docker compose down
 ```
 
